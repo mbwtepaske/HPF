@@ -1,0 +1,30 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.26730.12
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HPF.Viewer", "HPF.Viewer\HPF.Viewer.csproj", "{E919AC91-FD49-492C-98CD-880DAAF9A868}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Common", "Common", "{8D99F846-B5D4-4985-BEC4-3BFD48D58FB6}"
+	ProjectSection(SolutionItems) = preProject
+		HPF.ruleset = HPF.ruleset
+	EndProjectSection
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{E919AC91-FD49-492C-98CD-880DAAF9A868}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E919AC91-FD49-492C-98CD-880DAAF9A868}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E919AC91-FD49-492C-98CD-880DAAF9A868}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E919AC91-FD49-492C-98CD-880DAAF9A868}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {0BFA55B5-6266-4D69-A871-0C870ED189FA}
+	EndGlobalSection
+EndGlobal
