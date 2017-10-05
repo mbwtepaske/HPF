@@ -2,14 +2,13 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Runtime.Serialization;
 using System.Runtime.Serialization.Formatters.Binary;
 
 using PostSharp.Patterns.Contracts;
 using PostSharp.Patterns.Model;
 
-namespace HPF.Viewer.Models
+namespace HPF.Models
 {
   [NotifyPropertyChanged]
   [Serializable]
@@ -23,24 +22,26 @@ namespace HPF.Viewer.Models
 
     public const uint ChunkSize = 16;
 
-    private static readonly IFormatter Formatter = new BinaryFormatter();
+    private readonly IDictionary<Position, Tile[]> _tileChunkMapping = new SortedDictionary<Position, Tile[]>(new ChunkPositionComparer());
 
-    public static Surface Load(string filePath)
+    public Position? GoalPosition
     {
-      using (var fileStream = File.OpenRead(filePath))
-      {
-        return Load(fileStream);
-      }
+      get;
+      set;
     }
 
-    public static Surface Load(Stream stream) => (Surface) Formatter.Deserialize(stream);
-
-    private readonly IDictionary<Position, Tile[]> _tileChunkMapping = new SortedDictionary<Position, Tile[]>(new ChunkPositionComparer());
+    public Position? StartPosition
+    {
+      get;
+      set;
+    }
 
     public Tile this[uint x, uint y] => _tileChunkMapping.TryGetValue((x / ChunkSize, y / ChunkSize), out var tiles)
       ? tiles[x % ChunkSize + y % ChunkSize * ChunkSize]
       : null;
 
+    public Tile this[Position position] => this[position.X, position.Y];
+    
     public void GenerateChunk(Position position, Action<Tile> visitor = null)
     {
       var offset = (X: position.X * ChunkSize, Y: position.Y * ChunkSize);
@@ -63,16 +64,6 @@ namespace HPF.Viewer.Models
       NotifyPropertyChangedServices.SignalPropertyChanged(this, "Item");
     }
 
-    public void Save(string filePath)
-    {
-      using (var fileStream = File.Open(filePath, FileMode.Create, FileAccess.Write, FileShare.None))
-      {
-        Save(fileStream);
-      }
-    }
-
-    public void Save(Stream stream) => Formatter.Serialize(stream, this);
-
     public IEnumerator<Tile> GetEnumerator()
     {
       foreach (var tiles in _tileChunkMapping.Values)
@@ -85,5 +76,49 @@ namespace HPF.Viewer.Models
     }
 
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+
+    public override string ToString()
+    {
+      var maxX = 0U;
+      var maxY = 0U;
+      var minX = 0U;
+      var minY = 0U;
+
+      foreach (var position in _tileChunkMapping.Keys)
+      {
+        maxX = Math.Max(maxX, position.X);
+        maxY = Math.Max(maxY, position.Y);
+        minX = Math.Max(minX, position.X);
+        minY = Math.Max(minY, position.Y);
+      }
+      
+      return $"Chunks = {_tileChunkMapping.Count}, Size: [{(maxX - minX) * ChunkSize},{(maxY - minY) * ChunkSize}]";
+    }
+
+    #region Serialization
+
+    private static readonly IFormatter Formatter = new BinaryFormatter();
+
+    public static Surface Load(string filePath)
+    {
+      using (var fileStream = File.OpenRead(filePath))
+      {
+        return Load(fileStream);
+      }
+    }
+
+    public static Surface Load(Stream stream) => (Surface) Formatter.Deserialize(stream);
+
+    public void Save(string filePath)
+    {
+      using (var fileStream = File.Open(filePath, FileMode.Create, FileAccess.Write, FileShare.None))
+      {
+        Save(fileStream);
+      }
+    }
+
+    public void Save(Stream stream) => Formatter.Serialize(stream, this);
+
+    #endregion
   }
 }

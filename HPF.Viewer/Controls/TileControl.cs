@@ -1,5 +1,6 @@
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Controls.Primitives;
 using System.Windows.Data;
 using System.Windows.Input;
 using System.Windows.Media;
@@ -14,6 +15,10 @@ namespace HPF.Viewer.Controls
   {
     static TileControl() => DefaultStyleKeyProperty.OverrideMetadata(typeof(TileControl), new FrameworkPropertyMetadata(typeof(TileControl)));
 
+    private SurfaceControl _surfaceControl;
+
+    #region Is Blocked
+    
     [DependencyProperty]
     public bool IsBlocked
     {
@@ -29,6 +34,48 @@ namespace HPF.Viewer.Controls
       private set;
     }
 
+    #endregion
+
+    #region Is Goal Tile
+
+    [DependencyProperty]
+    public bool IsGoalTile
+    {
+      get;
+      private set;
+    }
+
+    public static DependencyProperty IsGoalTileProperty
+    {
+      get;
+      private set;
+    }
+
+    private void OnIsGoalTileChanged() => UpdateVisualState(true);
+
+    #endregion
+
+    #region Is Start Tile
+
+    [DependencyProperty]
+    public bool IsStartTile
+    {
+      get;
+      private set;
+    }
+
+    public static DependencyProperty IsStartTileProperty
+    {
+      get;
+      private set;
+    }
+
+    private void OnIsStartTileChanged() => UpdateVisualState(true);
+
+    #endregion
+
+    #region Tile
+
     [DependencyProperty]
     public Tile Tile
     {
@@ -40,16 +87,35 @@ namespace HPF.Viewer.Controls
     {
       ToolTip = Tile.Position.ToString();
 
-      SetBinding(IsBlockedProperty, new Binding(nameof(Tile.Blocked))
-      {
-        Mode = BindingMode.TwoWay,
-        Source = Tile
-      });
-
       UpdateVisualState(true);
     }
 
-    private SurfaceControl _surfaceControl;
+    #endregion
+    
+    public override void OnApplyTemplate() => UpdateVisualState(false);
+
+    protected override void OnMouseMove(MouseEventArgs e)
+    {
+      base.OnMouseMove(e);
+
+      if (e.LeftButton == MouseButtonState.Pressed && _surfaceControl != null)
+      {
+        switch (_surfaceControl.EditorMode)
+        {
+          case SurfaceEditMode.AssignBlocking:
+            IsBlocked = true;
+            break;
+
+          case SurfaceEditMode.AssignDefault:
+            IsBlocked = false;
+            break;
+        }
+      }
+    }
+
+    protected override void OnMouseEnter(MouseEventArgs e) => UpdateVisualState(true);
+
+    protected override void OnMouseLeave(MouseEventArgs e) => UpdateVisualState(true);
 
     protected override void OnVisualParentChanged(DependencyObject oldParent)
     {
@@ -59,6 +125,9 @@ namespace HPF.Viewer.Controls
         {
           _surfaceControl = parentSurfaceControl;
 
+          UpdateBindings();
+          UpdateParent();
+          
           break;
         }
       }
@@ -66,26 +135,80 @@ namespace HPF.Viewer.Controls
       base.OnVisualParentChanged(oldParent);
     }
 
-    public override void OnApplyTemplate() => UpdateVisualState(false);
-
-    protected override void OnMouseMove(MouseEventArgs e)
-    {
-      base.OnMouseMove(e);
-
-      if (e.LeftButton == MouseButtonState.Pressed && _surfaceControl != null)
-      {
-        IsBlocked = SurfaceControl.BlockState[_surfaceControl];
-      }
-    }
-
-    protected override void OnMouseEnter(MouseEventArgs e) => UpdateVisualState(true);
-
-    protected override void OnMouseLeave(MouseEventArgs e) => UpdateVisualState(true);
-
     private void UpdateVisualState(bool useTransitions)
     {
+      VisualStateManager.GoToState(this, IsGoalTile ? "Goal" : "NoGoal", useTransitions);
+      VisualStateManager.GoToState(this, IsStartTile ? "Start" : "NoStart", useTransitions);
       VisualStateManager.GoToState(this, IsBlocked ? "Blocked" : "Default", useTransitions);
       VisualStateManager.GoToState(this, IsMouseOver ? "MouseOver" : "Normal", useTransitions);
+    }
+
+    private void UpdateBindings()
+    {
+      SetBinding(IsBlockedProperty, new Binding
+      {
+        Converter = new IsEqualConverter<TileMode>(TileMode.Blocked),
+        Mode      = BindingMode.TwoWay,
+        Path      = new PropertyPath(nameof(Tile.Mode)),
+        Source    = Tile
+      });
+
+      SetBinding(IsGoalTileProperty, new Binding
+      {
+        Converter = new IsEqualConverter<Position>(Tile.Position),
+        Path      = new PropertyPath(SurfaceControl.GoalPositionProperty),
+        Source    = _surfaceControl
+      });
+
+      SetBinding(IsStartTileProperty, new Binding
+      {
+        Converter = new IsEqualConverter<Position>(Tile.Position),
+        Path      = new PropertyPath(SurfaceControl.StartPositionProperty),
+        Source    = _surfaceControl
+      });
+    }
+
+    private void UpdateParent()
+    {
+      var isGoalButton = new MenuItem
+      {
+        Command           = _surfaceControl.AssignGoalPosition,
+        CommandParameter  = this,
+        Header            = "Goal",
+        IsCheckable       = true,
+      };
+      
+      isGoalButton.SetBinding(MenuItem.IsCheckedProperty, new Binding
+      {
+        Mode    = BindingMode.OneWay,
+        Path    = new PropertyPath(IsGoalTileProperty),
+        Source  = this
+      });
+      
+      var isStartButton = new MenuItem
+      {
+        Command           = _surfaceControl.AssignStartPosition,
+        CommandParameter  = this,
+        Header            = "Start",
+        IsCheckable       = true
+      };
+      
+      isStartButton.SetBinding(MenuItem.IsCheckedProperty, new Binding
+      {
+        Mode    = BindingMode.OneWay,
+        Path    = new PropertyPath(IsStartTileProperty),
+        Source  = this
+      });
+      
+      ContextMenu = new ContextMenu
+      {
+        Items =
+        {
+          isGoalButton,
+          isStartButton
+        },
+        Placement = PlacementMode.Bottom
+      };
     }
   }
 }

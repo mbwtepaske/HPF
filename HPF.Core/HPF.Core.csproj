@@ -5,20 +5,17 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{E919AC91-FD49-492C-98CD-880DAAF9A868}</ProjectGuid>
-    <OutputType>WinExe</OutputType>
-    <RootNamespace>HPF.Viewer</RootNamespace>
-    <AssemblyName>HPF.Viewer</AssemblyName>
+    <ProjectGuid>{5D245C7C-4872-4B73-B6F8-24C81DD5D1EB}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>HPF</RootNamespace>
+    <AssemblyName>HPF.Core</AssemblyName>
     <TargetFrameworkVersion>v4.7</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
-    <ProjectTypeGuids>{60dc8134-eba5-43b8-bcc9-bb4bc16c2548};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
-    <WarningLevel>4</WarningLevel>
-    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
     <NuGetPackageImportStamp>
     </NuGetPackageImportStamp>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <PlatformTarget>AnyCPU</PlatformTarget>
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
@@ -26,12 +23,8 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <CodeAnalysisRuleSet>..\HPF.ruleset</CodeAnalysisRuleSet>
-    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <PostSharpDisabledMessages>LA0156</PostSharpDisabledMessages>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <PlatformTarget>AnyCPU</PlatformTarget>
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>bin\Release\</OutputPath>
@@ -42,6 +35,7 @@
   <ItemGroup>
     <Reference Include="PostSharp, Version=5.0.34.0, Culture=neutral, PublicKeyToken=b13fd38b8f9c99d7, processorArchitecture=MSIL">
       <HintPath>..\packages\PostSharp.Redist.5.0.34\lib\net45\PostSharp.dll</HintPath>
+      <Private>True</Private>
     </Reference>
     <Reference Include="PostSharp.Patterns.Aggregation, Version=5.0.34.0, Culture=neutral, PublicKeyToken=e7f631e6ce13f078, processorArchitecture=MSIL">
       <HintPath>..\packages\PostSharp.Patterns.Aggregation.Redist.5.0.34\lib\net45\PostSharp.Patterns.Aggregation.dll</HintPath>
@@ -52,66 +46,30 @@
     <Reference Include="PostSharp.Patterns.Model, Version=5.0.34.0, Culture=neutral, PublicKeyToken=e7f631e6ce13f078, processorArchitecture=MSIL">
       <HintPath>..\packages\PostSharp.Patterns.Model.Redist.5.0.34\lib\net40\PostSharp.Patterns.Model.dll</HintPath>
     </Reference>
-    <Reference Include="PostSharp.Patterns.Xaml, Version=5.0.34.0, Culture=neutral, PublicKeyToken=e7f631e6ce13f078, processorArchitecture=MSIL">
-      <HintPath>..\packages\PostSharp.Patterns.Xaml.Redist.5.0.34\lib\net40\PostSharp.Patterns.Xaml.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
-    <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Collections.Immutable, Version=1.2.2.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
       <HintPath>..\packages\System.Collections.Immutable.1.4.0\lib\netstandard2.0\System.Collections.Immutable.dll</HintPath>
     </Reference>
     <Reference Include="System.Core" />
-    <Reference Include="System.Xaml">
-      <RequiredTargetFramework>4.0</RequiredTargetFramework>
-    </Reference>
-    <Reference Include="WindowsBase" />
-    <Reference Include="PresentationCore" />
-    <Reference Include="PresentationFramework" />
   </ItemGroup>
   <ItemGroup>
-    <ApplicationDefinition Include="Program.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </ApplicationDefinition>
-    <Page Include="Themes\Generic.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
-    <Page Include="Windows\MainWindow.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
-    <Compile Include="ApplicationViewModel.cs" />
-    <Compile Include="Controls\IsEqualConverter.cs" />
-    <Compile Include="Controls\SurfaceControl.cs" />
-    <Compile Include="Controls\SurfaceEditMode.cs" />
-    <Compile Include="Controls\TileControl.cs" />
-    <Compile Include="Controls\ValueConverter.cs" />
-    <Compile Include="Program.xaml.cs">
-      <DependentUpon>Program.xaml</DependentUpon>
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="Windows\MainWindow.xaml.cs">
-      <DependentUpon>MainWindow.xaml</DependentUpon>
-      <SubType>Code</SubType>
-    </Compile>
+    <Compile Include="Algorithms\AStar.cs" />
+    <Compile Include="Algorithms\BasePathFinder.cs" />
+    <Compile Include="Algorithms\Extensions\IPathFinderExtensions.cs" />
+    <Compile Include="Algorithms\INode.cs" />
+    <Compile Include="Algorithms\IPathFinder.cs" />
+    <Compile Include="Algorithms\PathFinderState.cs" />
+    <Compile Include="Algorithms\TileNavigator.cs" />
+    <Compile Include="Models\Position.cs" />
+    <Compile Include="Models\Surface.cs" />
+    <Compile Include="Models\Tile.cs" />
+    <Compile Include="Models\TileMode.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Properties\AssemblyInfo.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Resource Include="Fonts\FontAwesome.ttf" />
     <None Include="packages.config" />
   </ItemGroup>
-  <ItemGroup>
-    <None Include="App.config" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\HPF.Core\HPF.Core.csproj">
-      <Project>{5d245c7c-4872-4b73-b6f8-24c81dd5d1eb}</Project>
-      <Name>HPF.Core</Name>
-    </ProjectReference>
-  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
     <PropertyGroup>

@@ -34,13 +34,10 @@ namespace HPF.Viewer
       {
         Surface = new Surface();
         Surface.GenerateChunk((0, 0));
-        Surface.GenerateChunk((1, 0));
+        Surface.GenerateChunk((1, 1));
         Surface.GenerateChunk((2, 0));
         Surface.GenerateChunk((0, 1));
         Surface.GenerateChunk((2, 1));
-        Surface.GenerateChunk((0, 2));
-        Surface.GenerateChunk((1, 2));
-        Surface.GenerateChunk((2, 2));
       }
     }
   }
