@@ -64,6 +64,8 @@ namespace HPF.Models
       NotifyPropertyChangedServices.SignalPropertyChanged(this, "Item");
     }
 
+    public IEnumerable<Position> GetChunks() => _tileChunkMapping.Keys;
+
     public IEnumerator<Tile> GetEnumerator()
     {
       foreach (var tiles in _tileChunkMapping.Values)

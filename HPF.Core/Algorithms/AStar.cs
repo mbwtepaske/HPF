@@ -10,10 +10,10 @@ using PostSharp.Patterns.Contracts;
 
 namespace HPF.Algorithms
 {
-  using Models;
-  
   public class AStar<TNode> : BasePathFinder<TNode> where TNode : INode<TNode>
   {
+    public delegate double DistanceFunction(TNode source, TNode target);
+    
     [DebuggerDisplay("{" + nameof(ToDebuggerString) + "(),nq}")]
     protected class PriorityQueue<TValue>
     {
@@ -110,11 +110,11 @@ namespace HPF.Algorithms
       }
     }
 
-    private readonly Func<TNode, TNode, double> _distanceFunction;
+    private readonly DistanceFunction _distanceFunction;
     private readonly HashSet<TNode> _closeList = new HashSet<TNode>();
     private readonly PriorityQueue<Path> _openList = new PriorityQueue<Path>();
     
-    public AStar([NotNull] Func<TNode, TNode, double> distanceFunction) => _distanceFunction = distanceFunction;
+    public AStar([NotNull] DistanceFunction distanceFunction) => _distanceFunction = distanceFunction;
     
     public override IPathFinder<TNode> Setup(TNode source, TNode destination)
     {
@@ -127,37 +127,34 @@ namespace HPF.Algorithms
 
     protected override PathFinderState StepCore()
     {
-      if (!_openList.IsEmpty)
+      if (_openList.IsEmpty)
       {
-        var path = _openList.Dequeue();
-        var current = path.Last;
+        return Abort();
+      }
 
-        if (_closeList.Contains(current))
-        {
-          return Continue();
-        }
+      var path = _openList.Dequeue();
+      var current = path.Last;
 
-        if (current.Equals(Destination))
-        {
-          return Return(path);
-        }
-
-        _closeList.Add(current);
-
-        foreach (var neighbour in current
-          .Expand()
-          //.Except(_closeList)
-          )
-        {
-          var newPath = path.Add(neighbour, _distanceFunction(current, neighbour));
-
-          _openList.Enqueue(newPath.TotalCost + _distanceFunction(neighbour, Destination) * 0.70710678118655, newPath);
-        }
-
+      if (_closeList.Contains(current))
+      {
         return Continue();
       }
 
-      return Return(null);
+      if (current.Equals(Destination))
+      {
+        return Finish(path);
+      }
+
+      _closeList.Add(current);
+
+      foreach (var neighbour in current.Expand())
+      {
+        var newPath = path.Add(neighbour, _distanceFunction(current, neighbour));
+
+        _openList.Enqueue(newPath.TotalCost + _distanceFunction(neighbour, Destination) * 0.70710678118655, newPath);
+      }
+
+      return Continue();
     }
   }
 }

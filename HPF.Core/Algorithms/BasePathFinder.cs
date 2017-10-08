@@ -36,21 +36,18 @@ namespace HPF.Algorithms
       private set;
     }
 
+    protected PathFinderState Abort() => PathFinderState.Aborted;
+    
     protected PathFinderState Continue() => PathFinderState.Running;
     
-    public virtual void Reset() => Result = Array.Empty<TNode>();
-
-    protected PathFinderState Return(IEnumerable<TNode> tiles)
+    protected PathFinderState Finish([NotNull] IEnumerable<TNode> tiles)
     {
-      if (tiles != null)
-      {
-        Result = tiles.ToImmutableArray();
+      Result = tiles.ToImmutableArray();
 
-        return PathFinderState.Finished;
-      }
-      
-      return PathFinderState.Aborted;
+      return PathFinderState.Finished;
     }
+
+    public virtual void Reset() => Result = Array.Empty<TNode>();
 
     public virtual IPathFinder<TNode> Setup([NotNull] TNode source, [NotNull] TNode destination)
     {

@@ -38,7 +38,7 @@ namespace HPF.Viewer.Controls
     private Canvas _canvas;
     private Grid _itemsPanel;
     private ToolBar _instructionMenu;
-
+    
     #region Navigate
 
     [Command]
@@ -52,7 +52,7 @@ namespace HPF.Viewer.Controls
     
     public void ExecuteNavigate()
     {
-      var path = TileNavigator.AStar(Surface, StartPosition.GetValueOrDefault(), GoalPosition.GetValueOrDefault()).GetPath();
+      var path = TileNode.AStar(Surface, StartPosition.GetValueOrDefault(), GoalPosition.GetValueOrDefault()).GetPath();
 
       if (_canvas != null)
       {
@@ -65,15 +65,53 @@ namespace HPF.Viewer.Controls
         _canvas.Children.Clear();
         _canvas.Children.Add(new Polyline
         {
-          Points = new PointCollection(tilePositions),
-          Stroke = Brushes.Green,
-          StrokeDashArray = { 3D, 3D },
-          StrokeDashCap = PenLineCap.Round,
-          StrokeThickness = 3D,
+          Points          = new PointCollection(tilePositions),
+          Stroke          = Brushes.Green,
+          StrokeDashArray = { 1D / 3D, 1D },
+          StrokeDashCap   = PenLineCap.Round,
+          StrokeThickness = 3D
         });
       }
     }
-    
+
+    #endregion
+
+    #region Draw Zone
+
+    [Command]
+    public ICommand DrawZone
+    {
+      get;
+      set;
+    }
+
+    private void ExecuteDrawZone()
+    {
+      var node = ZoneOrTileNode.Construct(Surface);
+
+      if (_canvas != null)
+      {
+        var tileSize = ChuckSize / Surface.ChunkSize;
+        var tileOffset = tileSize * 0.2;
+        
+        foreach (var area in node.ZoneList)
+        {
+          var rectangle = new Rectangle
+          {
+            Stroke          = Brushes.CornflowerBlue,
+            StrokeThickness = 1D,
+            Width           = area.Size.SizeX * tileSize - tileOffset * 2,
+            Height          = area.Size.SizeY * tileSize - tileOffset * 2,
+          };
+          
+          Canvas.SetLeft(rectangle, area.Position.X * tileSize + tileOffset);
+          Canvas.SetTop (rectangle, area.Position.Y * tileSize + tileOffset);
+          
+          _canvas.Children.Add(rectangle);
+        }
+      }
+    }
+
     #endregion
 
     #region Goal Position
@@ -187,6 +225,18 @@ namespace HPF.Viewer.Controls
       //RegenerateTiles();
     }
 
+    protected override void OnKeyDown(KeyEventArgs e)
+    {
+      base.OnKeyDown(e);
+
+      switch (e.Key)
+      {
+        case Key.F1:
+          Navigate?.Execute(null);
+          break;
+      }
+    }
+
     private void RegenerateMenu()
     {
       if (_instructionMenu != null)
@@ -229,6 +279,11 @@ namespace HPF.Viewer.Controls
           Content     = "A*",
           //FontFamily  = (FontFamily) FindResource("FontAwesome"),
           ToolTip     = "Navigate"
+        });
+        _instructionMenu.Items.Add(new CheckBox
+        {
+          Command = DrawZone,
+          Content = nameof(DrawZone)
         });
       }
     }
