@@ -53,6 +53,7 @@
     <Reference Include="System.Core" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AbstractMap.cs" />
     <Compile Include="Algorithms\AStar.cs" />
     <Compile Include="Algorithms\BasePathFinder.cs" />
     <Compile Include="Algorithms\Extensions\IPathFinderExtensions.cs" />
@@ -63,12 +64,16 @@
     <Compile Include="Algorithms\TileNode.cs" />
     <Compile Include="Algorithms\HierarchicalAStar.cs" />
     <Compile Include="Algorithms\ZoneOrTileNode.cs" />
+    <Compile Include="Cluster.cs" />
+    <Compile Include="ClusterBorder.cs" />
+    <Compile Include="ConcreteMap.cs" />
     <Compile Include="Models\Area.cs" />
     <Compile Include="Models\Position.cs" />
     <Compile Include="Models\Size.cs" />
     <Compile Include="Models\Surface.cs" />
     <Compile Include="Models\Tile.cs" />
     <Compile Include="Models\TileMode.cs" />
+    <Compile Include="Orientation.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
